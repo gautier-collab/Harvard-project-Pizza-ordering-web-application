@@ -1,0 +1,46 @@
+{% extends "orders/base.html" %}
+
+{% block title %}
+    Login page
+{% endblock %}
+
+{% block heading %}
+    Login
+{% endblock %}
+
+{% block buttons %}
+    <a href="{% url 'signup' %}">
+        <button>
+            Sign up
+        </button>
+    </a>
+{% endblock %}
+
+{% block body %}
+    <form action="{% url 'login' %}" method="post">
+        {% csrf_token %}
+        <table>
+            <tr>
+                <td>
+                    Username:
+                </td>
+                <td style="padding-left:1rem">
+                    Password:
+                </td>
+                <td style="padding-left:1rem">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input name="username" type="text" Placeholder="username" maxlength="30"/>
+                </td>
+                <td style="padding-left:1rem">
+                    <input name="password" type="password" Placeholder="password" maxlength="30"/>
+                </td>
+                <td style="padding-left:1rem">
+                    <input type="submit" value="Login"/>
+                </td>
+            </tr>
+        </table>
+    </form>
+{% endblock %}

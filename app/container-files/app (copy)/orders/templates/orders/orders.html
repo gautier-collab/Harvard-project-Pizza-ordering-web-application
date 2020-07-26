@@ -1,0 +1,172 @@
+{% extends "orders/base.html" %}
+
+{% block page %}orders{% endblock %}
+
+{% block title %}
+    Orders
+{% endblock %}
+
+{% block style %}
+    th, td {
+        font-size: 0.95rem;
+    }
+{% endblock %}
+
+{% block username %}
+    Currently logged in as <span style="color:blue">{{ user.username }}</span>.
+{% endblock %}
+
+{% block heading %}
+    Orders
+{% endblock %}
+
+{% block buttons %}
+
+    <a href="{% url 'index' %}">
+        <button style="width:8.4rem; height: 2.2rem">
+            Menu&nbsp;&nbsp;
+            <i class="fas fa-pizza-slice"></i>
+        </button>
+    </a>
+    <br>
+    <br>
+    <a href="{% url 'cart' %}">
+        <button style="width:8.4rem; height: 2.2rem">
+            Cart&nbsp;&nbsp;
+            <i class="fas fa-shopping-cart"></i>
+        </button>
+    </a>
+    <br>
+    <br>
+    <a href="{% url 'logout' %}">
+        <button style="width:8.4rem; height: 2.2rem">
+            Logout&nbsp;&nbsp;
+            <i class="fas fa-sign-out-alt"></i>
+        </button>
+    </a>
+
+{% endblock %}
+
+{% block body %}
+
+    {% if orders %}
+
+        <table>
+
+            <tr>
+                <th style="text-align:left; padding:0.9rem; width:13rem">
+                    &nbsp;&nbsp;&nbsp;&nbsp;Date
+                </th>
+                <th style="text-align:left; padding:0.9rem">
+                    &nbsp;&nbsp;Buyer
+                </th>
+                <th style="padding:0.9rem">
+                    Payment
+                </th>
+                <th style="text-align:left; padding:0.9rem">
+                    &nbsp;&nbsp;&nbsp;&nbsp;Content
+                </th>
+            </tr>
+
+            {% for order in orders %}
+                <tr>
+                    <td style="vertical-align:top; padding:0.9rem">
+                        {{ order.date }}
+                    </td>
+                    <td style="vertical-align:top; padding:0.9rem">
+                        {{ order.order.first_name }} {{ order.order.last_name }}
+                    </td>
+                    <td style="vertical-align:top; text-align:center; padding:0.9rem">
+                        ${{ order.order.price|stringformat:'.2f' }}
+                    </td>
+                    <td style="vertical-align:top; padding:0.9rem">
+
+                        {% for pizza in order.items.pizzas %}
+                            &bull;&nbsp;&nbsp;{{ pizza.size }} {{ pizza.crust }} {{ pizza.name }} pizza
+                            {% if pizza.topping_1 != "None" or pizza.topping_2 != "None" or pizza.topping_3 != "None" or pizza.topping_4 != "None" %}
+                                <br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;( 
+                                {% if pizza.topping_1 != "None" %}
+                                    {{ pizza.topping_1 }}
+                                    {% if pizza.topping_2 != "None" or pizza.topping_3 != "None" or pizza.topping_4 != "None" %}
+                                        + 
+                                    {% endif %}
+                                {% endif %}
+                                {% if pizza.topping_2 != "None" %}
+                                    {{ pizza.topping_2 }}
+                                    {% if pizza.topping_3 != "None" or pizza.topping_4 != "None" %}
+                                        + 
+                                    {% endif %}
+                                {% endif %}
+                                {% if pizza.topping_3 != "None" %}
+                                    {{ pizza.topping_3 }}
+                                    {% if pizza.topping_4 != "None" %}
+                                        + 
+                                    {% endif %}
+                                {% endif %}
+                                {% if pizza.topping_4 != "None" %}
+                                    {{ pizza.topping_4 }}
+                                {% endif %}
+                                )
+                            {% endif %}
+                            <br>
+                        {% endfor %}
+
+                        {% for sub in order.items.subs %}
+                            &bull;&nbsp;&nbsp;{{ sub.size }} {{ sub.name }} sub
+                                {% if sub.extra_1 != "None" or sub.extra_2 != "None" or sub.extra_3 != "None" or sub.extra_4 != "None" %}
+                                    <br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;( with 
+                                    {% if sub.extra_1 != "None" %}
+                                        {{ sub.extra_1 }}
+                                        {% if sub.extra_2 != "None" or sub.extra_3 != "None" or sub.extra_4 != "None" %}
+                                            + 
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if sub.extra_2 != "None" %}
+                                        {{ sub.extra_2 }}
+                                        {% if sub.extra_3 != "None" or sub.extra_4 != "None" %}
+                                            + 
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if sub.extra_3 != "None" %}
+                                        {{ sub.extra_3 }}
+                                        {% if sub.extra_4 != "None" %}
+                                            + 
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if sub.extra_4 != "None" %}
+                                        {{ sub.extra_4 }}
+                                    {% endif %}
+                                    )
+                            {% endif %}
+                            <br>
+                        {% endfor %}
+
+                        {% for pasta in order.items.pasta %}
+                            &bull;&nbsp;&nbsp;{{ pasta.name }}
+                            <br>
+                        {% endfor %}
+
+                        {% for salad in order.items.salads %}
+                            &bull;&nbsp;&nbsp;{{ salad.name }}
+                            <br>
+                        {% endfor %}
+
+                        {% for platter in order.items.dinner_platters %}
+                            &bull;&nbsp;&nbsp;{{ platter.size }} {{ platter.name }} dinner platter
+                            <br>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+
+        </table>
+
+    {% else %}
+
+        There are no orders yet.
+
+    {% endif %}
+
+{% endblock %}

@@ -1,0 +1,704 @@
+{% extends "orders/base.html" %}
+
+{% load static %}
+
+{% block page %}menu{% endblock %}
+
+{% block title %}
+    Pinnochio’s Pizza & Subs
+{% endblock %}
+
+{% block username %}
+    Currently logged in as <span style="color:blue" id="user" data-user={{ user.id }}>{{ user.username }}</span>.
+{% endblock %}
+
+{% block heading %}
+    Menu
+{% endblock %}
+
+{% block buttons %}
+
+    {% if user.is_superuser == True %}
+        <a href="{% url 'orders' %}">
+            <button style="width:8.4rem; height: 2.2rem">
+                Orders&nbsp;&nbsp;
+                <i class="fas fa-clipboard-list"></i>
+            </button>
+        </a>
+        <br>
+        <br>
+    {% endif %}
+
+    <a href="{% url 'cart' %}">
+        <button style="width:8.4rem; height: 2.2rem">
+            Cart&nbsp;&nbsp;
+            <i class="fas fa-shopping-cart"></i>
+        </button>
+    </a>
+    <br>
+    <br>
+    <a href="{% url 'logout' %}">
+        <button style="width:8.4rem; height: 2.2rem">
+            Logout&nbsp;&nbsp;
+            <i class="fas fa-sign-out-alt"></i>
+        </button>
+    </a>
+
+{% endblock %}
+
+{% block body %}
+
+    {% if pizzas %}
+        <h1 style="font-family:'URW Chancery L'">
+            Pizzas
+        </h1>
+        <img src="{% static 'orders/underline.png' %}" class="underline">
+        <br>
+        {% for crust in crusts %}
+            {% if crust.pizzas %}
+            
+                <ul style="padding-left: 5.5rem; padding-bottom: 0.2rem">
+                    <li>
+                        <h5 style="font-family:'URW Chancery L'; font-size:170%">
+                            &nbsp;&nbsp;{{ crust.name }} pizzas
+                        </h5>
+                    </li>
+                </ul>
+
+                <table>
+                    <tr>
+                        <td>
+                        </td>
+                        <td style="text-align: center; padding: 0.6rem; border-left: 0.1rem solid black">
+                            Small
+                        </td>
+                        <td style="text-align: center; padding: 0.6rem; border-left: 0.1rem solid black; border-right: 0.1rem solid black">
+                            Large
+                        </td>
+                    </tr>
+                    {% for pizza in pizzas %}
+                        {% if pizza.crust == crust %}
+                            <tr id="pizza{{ pizza.id }}">
+
+                                <td id="pizza{{ pizza.id }}name" style="padding: 0.6rem" data-name="{{ pizza.name }}" data-crust="{{ crust }}">
+                                    {{ pizza.name }}
+                                </td>
+
+                                <td id="pizza{{ pizza.id }}small_price" style="text-align: center; padding: 0.6rem; border-left: 0.1rem solid black" data-price={{ pizza.small_price }}>
+                                    {% if pizza.selectable_size != "Large" %}
+                                        ${{ pizza.small_price|stringformat:'.2f' }}
+                                    {% endif %}
+                                </td>
+
+                                <td id="pizza{{ pizza.id }}large_price" style="text-align: center; padding: 0.6rem; border-left: 0.1rem solid black" data-price={{ pizza.large_price }}>
+                                    {% if pizza.selectable_size != "Small" %}
+                                        ${{ pizza.large_price|stringformat:'.2f' }}
+                                    {% endif %}
+                                </td>
+
+                                <td style="padding: 0.6rem; padding-left:1.5rem; border-left: 0.1rem solid black">
+                                    <span id="pizza{{ pizza.id }}plus">
+                                        <button class="pizza btn btn-outline-primary btn-sm" value="{{ pizza.id }}">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </span>
+                                    <span id="pizza{{ pizza.id }}size" style="display:none">
+                                        <div style="color:DimGrey; font-size:90%; font-style:italic; text-align:center">
+                                            Size
+                                        </div>
+                                        <select id="pizza{{ pizza.id }}sizeSelect">
+                                            {% if pizza.selectable_size == "Small and large" %}
+                                                <option value="Small">
+                                                    Small
+                                                </option>
+                                                <option value="Large">
+                                                    Large
+                                                </option>
+                                            {% else %}
+                                                <option value={{ pizza.selectable_size }}>
+                                                    {{ pizza.selectable_size }}
+                                                </option>
+                                            {% endif %}
+                                        </select>
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div id="pizza{{ pizza.id }}added" style="display:none; padding: 0.6rem; font-style:italic; color:rgb(0,179,0)">
+                                        Added
+                                    </div>
+                                    <span id="toppings{{ pizza.id }}" style="display:none; padding:0.6rem">
+                                        {% if pizza.topping_1.name != "None" %}
+                                            <div style="color:DimGrey; font-size:90%; font-style:italic; text-align:center">
+                                                Toppings
+                                            </div>
+                                            <div style="padding-bottom: 0.3rem">
+                                                <select id="topping_1{{ pizza.id }}select" style="width:12rem">
+                                                    {% if pizza.topping_1.name == "Any" %}
+                                                        {% for topping in toppings %}
+                                                            <option data-name="{{ topping.name }}"> 
+                                                                {{ topping.name }}
+                                                            </option>
+                                                        {% endfor %}
+                                                    {% else %}
+                                                        <option data-name="{{ pizza.topping_1.name }}">
+                                                            {{ pizza.topping_1.name }}
+                                                        </option>
+                                                    {% endif %}
+                                                </select>
+                                            </div>
+                                        {% endif %}
+                                        {% if pizza.topping_2.name != "None" %}
+                                            <div style="padding-bottom: 0.3rem">
+                                                <select id="topping_2{{ pizza.id }}select" style="width:12rem">
+                                                    {% if pizza.topping_2.name == "Any" %}
+                                                        {% for topping in toppings %}
+                                                            <option data-name="{{ topping.name }}">
+                                                                {{ topping.name }}
+                                                            </option>
+                                                        {% endfor %}
+                                                    {% else %}
+                                                        <option data-name="{{ pizza.topping_2.name }}">
+                                                            {{ pizza.topping_2.name }}
+                                                        </option>
+                                                    {% endif %}
+                                                </select>
+                                            </div>
+                                        {% endif %}
+                                        {% if pizza.topping_3.name != "None" %}
+                                            <div style="padding-bottom: 0.3rem">
+                                                <select id="topping_3{{ pizza.id }}select" style="width:12rem">
+                                                    {% if pizza.topping_3.name == "Any" %}
+                                                        {% for topping in toppings %}
+                                                            <option data-name="{{ topping.name }}">
+                                                                {{ topping.name }}
+                                                            </option>
+                                                        {% endfor %}
+                                                    {% else %}
+                                                        <option data-name="{{ pizza.topping_3.name }}">
+                                                            {{ pizza.topping_3.name }}
+                                                        </option>
+                                                    {% endif %}
+                                                </select>
+                                            </div>
+                                        {% endif %}
+                                        {% if pizza.topping_4.name != "None" %}
+                                            <div>
+                                                <select id="topping_4{{ pizza.id }}select" style="width:12rem">
+                                                    {% if pizza.topping_4.name == "Any" %}
+                                                        {% for topping in toppings %}
+                                                            <option data-name="{{ topping.name }}">
+                                                                {{ topping.name }}
+                                                            </option>
+                                                        {% endfor %}
+                                                    {% else %}
+                                                        <option data-name="{{ pizza.topping_4.name }}">
+                                                            {{ pizza.topping_4.name }}
+                                                        </option>
+                                                    {% endif %}
+                                                </select>
+                                            </div>
+                                        {% endif %}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span id="pizza{{ pizza.id }}quantity" style="padding: 0.6rem; display:none; text-align:center">
+                                        <div style="color:DimGrey; font-size:90%; font-style:italic">
+                                            Number
+                                        </div>
+                                        <select id="pizza{{ pizza.id }}quantitySelect">
+                                            {% for i in "12345678" %}
+                                                <option value={{ forloop.counter }}>
+                                                    {{ forloop.counter }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </span>
+                                </td>
+
+                                <td style="vertical-align: middle; padding: 0.6rem">
+                                    <span id="pizza{{ pizza.id }}price">
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span id="pizza{{ pizza.id }}buttons" style="display:none; padding: 0.6rem;">
+                                        <div style="padding-bottom: 0.3rem">
+                                            <button id="pizza{{ pizza.id }}add" class="btn btn-success btn-sm" style="width: 4.6rem">
+                                            Add
+                                            </button>
+                                        </div>
+                                        <div style="padding-top: 0.3rem">
+                                            <button id="pizza{{ pizza.id }}cancel" class="btn btn-danger btn-sm" style="width: 4.6rem">
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div id="pizza{{ pizza.id }}msg" style="display:none; padding: 0.6rem; color:red">
+                                        You cannot select the same topping several times.
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </table>
+                <br>
+                <br>
+            {% endif %}
+        {% endfor %}
+        <br>
+    {% endif %}
+
+    {% if subs %}
+        <h1 style="font-family:'URW Chancery L'">
+            Subs
+        </h1>
+        <img src="{% static 'orders/underline.png' %}" class="underline">
+        <br>
+        <table>
+            <tr>
+                <td>
+                </td>
+                <td style="text-align: center; padding: 0.6rem; border-left: 0.1rem solid black">
+                    Small
+                </td>
+                <td style="text-align: center; padding: 0.6rem; border-left: 0.1rem solid black; border-right: 0.1rem solid black">
+                    Large
+                </td>
+            </tr>
+            {% for sub in subs %}
+                <tr id="sub{{ sub.id }}">
+                    <td id="sub{{ sub.id }}name" style="padding: 0.6rem" data-name="{{ sub.name }}">
+                        {{ sub.name }}
+                    </td>
+
+                    <td id="sub{{ sub.id }}small_price" style="text-align: center; padding: 0.6rem; border-left: 0.1rem solid black" data-price={{ sub.small_price }}>
+                        {% if sub.selectable_size != "Large" %}
+                            ${{ sub.small_price|stringformat:'.2f' }}
+                        {% endif %}
+                    </td>
+
+                    <td id="sub{{ sub.id }}large_price" style="text-align: center; padding: 0.6rem; border-left: 0.1rem solid black" data-price={{ sub.large_price }}>
+                        {% if sub.selectable_size != "Small" %}
+                            ${{ sub.large_price|stringformat:'.2f' }}
+                        {% endif %}
+                    </td>
+
+                    <td style="padding: 0.6rem; padding-left:1.5rem; border-left: 0.1rem solid black">
+                        <span id="sub{{ sub.id }}plus">
+                            <button type="button" class="sub btn btn-outline-primary btn-sm" value="{{ sub.id }}">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </span>
+                        <span id="sub{{ sub.id }}size" style="display:none">
+                            <div style="color:DimGrey; font-size:90%; font-style:italic; text-align:center">
+                                Size
+                            </div>
+                            <select id="sub{{ sub.id }}sizeSelect">
+                                {% if sub.selectable_size == "Small and large" %}
+                                    <option value="Small">
+                                        Small
+                                    </option>
+                                    <option value="Large">
+                                        Large
+                                    </option>
+                                {% else %}
+                                    <option value={{ sub.selectable_size }}>
+                                        {{ sub.selectable_size }}
+                                    </option>
+                                {% endif %}
+                            </select> 
+                        </span>
+                    </td>
+
+                    <td>
+                        <div id="sub{{ sub.id }}added" style="display:none; padding: 0.6rem; font-style:italic; color:rgb(0,179,0)">
+                            Added
+                        </div>
+                        <span id="extras{{ sub.id }}" style="display:none; padding: 0.6rem">
+                            {% if sub.selectable_extra_1.name != "None" %}
+                                <div style="color:DimGrey; font-size:90%; font-style:italic; text-align:center">
+                                    Extras
+                                </div>
+                                <div style="padding-bottom: 0.3rem">
+                                    <select id="extra_1{{ sub.id }}select" style="width:14rem">
+                                        <option data-name="None" data-price=0>
+                                            None
+                                        </option>
+                                        {% if sub.selectable_extra_1.name == "Any" %}
+                                            {% for extra in extras %}
+                                                <option data-name="{{ extra.name }}" data-price={{ extra.price }}>
+                                                    {{ extra.name }} ${{ extra.price|stringformat:'.2f' }}
+                                                </option>
+                                            {% endfor %}
+                                        {% else %}
+                                            <option data-name="{{ sub.selectable_extra_1.name }}" data-price={{ sub.selectable_extra_1.price }}>
+                                                {{ sub.selectable_extra_1.name }} ${{ sub.selectable_extra_1.price|stringformat:'.2f' }}
+                                            </option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            {% endif %}
+                            {% if sub.selectable_extra_2.name != "None" %}
+                                <div style="padding-bottom: 0.3rem">
+                                    <select id="extra_2{{ sub.id }}select" style="width:14rem">
+                                        <option data-name="None" data-price=0>
+                                            None
+                                        </option>
+                                        {% if sub.selectable_extra_2.name == "Any" %}
+                                            {% for extra in extras %}
+                                                <option data-name="{{ extra.name }}" data-price={{ extra.price }}>
+                                                    {{ extra.name }} ${{ extra.price|stringformat:'.2f' }}
+                                                </option>
+                                            {% endfor %}
+                                        {% else %}
+                                            <option data-name="{{ sub.selectable_extra_2.name }}" data-price={{ sub.selectable_extra_2.price }}>
+                                                {{ sub.selectable_extra_2.name }} ${{ sub.selectable_extra_2.price|stringformat:'.2f' }}
+                                            </option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            {% endif %}
+                            {% if sub.selectable_extra_3.name != "None" %}    
+                                <div style="padding-bottom: 0.3rem">
+                                    <select id="extra_3{{ sub.id }}select" style="width:14rem">
+                                        <option data-name="None" data-price=0>
+                                            None
+                                        </option>
+                                        {% if sub.selectable_extra_3.name == "Any" %}
+                                            {% for extra in extras %}
+                                                <option data-name="{{ extra.name }}" data-price={{ extra.price }}>
+                                                    {{ extra.name }} ${{ extra.price|stringformat:'.2f' }}
+                                                </option>
+                                            {% endfor %}
+                                        {% else %}
+                                            <option data-name="{{ sub.selectable_extra_3.name }}" data-price={{ sub.selectable_extra_3.price }}>
+                                                {{ sub.selectable_extra_3.name }} ${{ sub.selectable_extra_3.price|stringformat:'.2f' }}
+                                            </option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            {% endif %}
+                            {% if sub.selectable_extra_4.name != "None" %}    
+                                <div>
+                                    <select id="extra_4{{ sub.id }}select" style="width:14rem">
+                                        <option data-name="None" data-price=0>
+                                            None
+                                        </option>
+                                        {% if sub.selectable_extra_4.name == "Any" %}
+                                            {% for extra in extras %}
+                                                <option data-name="{{ extra.name }}" data-price={{ extra.price }}>
+                                                    {{ extra.name }} ${{ extra.price|stringformat:'.2f' }}
+                                                </option>
+                                            {% endfor %}
+                                        {% else %}
+                                            <option data-name="{{ sub.selectable_extra_4.name }}" data-price={{ sub.selectable_extra_4.price }}>
+                                                {{ sub.selectable_extra_4.name }} ${{ sub.selectable_extra_4.price|stringformat:'.2f' }}
+                                            </option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            {% endif %}
+                        </span>
+                    </td>
+
+                    <td>
+                        <span id="sub{{ sub.id }}quantity" style="padding: 0.6rem; display:none; text-align:center">
+                            <div style="color:DimGrey; font-size:90%; font-style:italic">
+                                Number
+                            </div>
+                            <select id="sub{{ sub.id }}quantitySelect">
+                                {% for i in "12345678" %}
+                                    <option value={{ forloop.counter }}>
+                                        {{ forloop.counter }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </span>
+                    </td>
+
+                    <td style="vertical-align: middle; padding: 0.6rem;">
+                        <span id="sub{{ sub.id }}price">
+                        </span>
+                    </td>
+                
+                    <td>
+                        <span id="sub{{ sub.id }}buttons" style="display:none; padding: 0.6rem;">
+                            <div style="padding-bottom: 0.3rem">
+                                <button id="sub{{ sub.id }}add" class="btn btn-success btn-sm" style="width: 4.6rem">
+                                Add
+                                </button>
+                            </div>
+                            <div style="padding-top: 0.3rem">
+                                <button id="sub{{ sub.id }}cancel" class="btn btn-danger btn-sm" style="width: 4.6rem">
+                                    Cancel
+                                </button>
+                            </div>
+                        </span>
+                    </td>
+
+                    <td>
+                        <div id="sub{{ sub.id }}msg" style="display:none; padding: 0.6rem; color:red">
+                            You cannot select the same extra several times.
+                        </div>
+                    </td>
+
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <br>
+        <br>
+    {% endif %}
+
+    {% if pastas %}
+        <h1 style="font-family:'URW Chancery L'">
+            Pasta
+        </h1>
+        <img src="{% static 'orders/underline.png' %}" class="underline">
+        <br>
+        <table>
+            {% for pasta in pastas %}
+                <tr id="pasta{{ pasta.id }}">
+
+                    <td id="pasta{{ pasta.id }}name" style="padding: 0.6rem" data-name="{{ pasta.name }}">
+                        {{ pasta.name }}
+                    </td>
+
+                    <td id="pasta{{ pasta.id }}singlePrice" style="text-align: center; padding: 0.6rem; border-left: 0.1rem solid black" data-price={{ pasta.price }}>
+                        ${{ pasta.price|stringformat:'.2f' }}
+                    </td>
+
+                    <td style="padding: 0.6rem; padding-left:1.5rem; border-left: 0.1rem solid black">
+                        <span id="pasta{{ pasta.id }}plus">
+                            <button class="pasta btn btn-outline-primary btn-sm" value="{{ pasta.id }}">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </span>
+                        <span id="pasta{{ pasta.id }}quantity" style="display:none; text-align:center">
+                            <div style="color:DimGrey; font-size:90%; font-style:italic">
+                                Number
+                            </div>
+                            <select id="pasta{{ pasta.id }}quantitySelect">
+                                {% for i in "12345678" %}
+                                    <option value={{ forloop.counter }}>
+                                        {{ forloop.counter }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </span>
+                    </td>
+
+                    <td style="vertical-align: middle; padding: 0.6rem">
+                        <div id="pasta{{ pasta.id }}added" style="display:none; padding: 0.6rem; font-style:italic; color:rgb(0,179,0)">
+                            Added
+                        </div>
+                        <span id="pasta{{ pasta.id }}price">
+                        </span>
+                    </td>
+
+                    <td>
+                        <span id="pasta{{ pasta.id }}buttons" style="display:none; padding: 0.6rem">
+                            <div style="padding-bottom: 0.3rem">
+                                <button id="pasta{{ pasta.id }}add" class="btn btn-success btn-sm" style="width: 4.6rem">
+                                Add
+                                </button>
+                            </div>
+                            <div style="padding-top: 0.3rem">
+                                <button id="pasta{{ pasta.id }}cancel" class="btn btn-danger btn-sm" style="width: 4.6rem">
+                                    Cancel
+                                </button>
+                            </div>
+                        </span>
+                    </td>
+
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <br>
+        <br>
+    {% endif %}
+
+    {% if salads %}
+        <h1 style="font-family:'URW Chancery L'">
+            Salads
+        </h1>
+        <img src="{% static 'orders/underline.png' %}" class="underline">
+        <br>
+        <table>
+            {% for salad in salads %}
+                <tr id="salad{{ salad.id }}">
+
+                    <td id="salad{{ salad.id }}name" style="padding: 0.6rem" data-name="{{ salad.name }}">
+                        {{ salad.name }}
+                    </td>
+
+                    <td id="salad{{ salad.id }}singlePrice" style="text-align: center; padding: 0.6rem; border-left: 0.1rem solid black" data-price={{ salad.price }}>
+                        ${{ salad.price|stringformat:'.2f' }}
+                    </td>
+
+                    <td style="padding: 0.6rem; padding-left:1.5rem; border-left: 0.1rem solid black">
+                        <span id="salad{{ salad.id }}plus">
+                            <button class="salad btn btn-outline-primary btn-sm" value="{{ salad.id }}">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </span>
+                        <span id="salad{{ salad.id }}quantity" style="display:none; text-align:center">
+                            <div style="color:DimGrey; font-size:90%; font-style:italic">
+                                Number
+                            </div>
+                            <select id="salad{{ salad.id }}quantitySelect">
+                                {% for i in "12345678" %}
+                                    <option value={{ forloop.counter }}>
+                                        {{ forloop.counter }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </span>
+                    </td>
+
+                    <td style="vertical-align: middle; padding: 0.6rem">
+                        <div id="salad{{ salad.id }}added" style="display:none; padding: 0.6rem; font-style:italic; color:rgb(0,179,0)">
+                            Added
+                        </div>
+                        <span id="salad{{ salad.id }}price">
+                        </span>
+                    </td>
+
+                    <td>
+                        <span id="salad{{ salad.id }}buttons" style="display:none; padding: 0.6rem">
+                            <div style="padding-bottom: 0.3rem">
+                                <button id="salad{{ salad.id }}add" class="btn btn-success btn-sm" style="width: 4.6rem">
+                                Add
+                                </button>
+                            </div>
+                            <div style="padding-top: 0.3rem">
+                                <button id="salad{{ salad.id }}cancel" class="btn btn-danger btn-sm" style="width: 4.6rem">
+                                    Cancel
+                                </button>
+                            </div>
+                        </span>
+                    </td>
+
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <br>
+        <br>
+    {% endif %}
+
+    {% if platters %}
+        <h1 style="font-family:'URW Chancery L'">
+            Platters
+        </h1>
+        <img src="{% static 'orders/underline.png' %}" class="underline">
+        <br>
+        <table>
+            <tr>
+                <td>
+                </td>
+                <td style="text-align: center; padding: 0.6rem; border-left: 0.1rem solid black">
+                    Small
+                </td>
+                <td style="text-align: center; padding: 0.6rem; border-left: 0.1rem solid black; border-right: 0.1rem solid black">
+                    Large
+                </td>
+            </tr>
+            {% for platter in platters %}
+                {% if platter.crust == crust %}
+                    <tr id="platter{{ platter.id }}">
+
+                        <td id="platter{{ platter.id }}name" style="padding: 0.6rem" data-name="{{ platter.name }}">
+                            {{ platter.name }}
+                        </td>
+
+                        <td id="platter{{ platter.id }}small_price" style="text-align: center; padding: 0.6rem; border-left: 0.1rem solid black" data-price={{ platter.small_price }}>
+                            {% if platter.selectable_size != "Large" %}
+                                ${{ platter.small_price|stringformat:'.2f' }}
+                            {% endif %}
+                        </td>
+
+                        <td id="platter{{ platter.id }}large_price" style="text-align: center; padding: 0.6rem; border-left: 0.1rem solid black" data-price={{ platter.large_price }}>
+                            {% if platter.selectable_size != "Small" %}
+                                ${{ platter.large_price|stringformat:'.2f' }}
+                            {% endif %}
+                        </td>
+
+                        <td style="padding: 0.6rem; padding-left:1.5rem; border-left: 0.1rem solid black">
+                            <span id="platter{{ platter.id }}plus">
+                                <button class="platter btn btn-outline-primary btn-sm" value="{{ platter.id }}">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </span>
+                            <span id="platter{{ platter.id }}size" style="display:none">
+                                <div style="color:DimGrey; font-size:90%; font-style:italic; text-align:center">
+                                    Size
+                                </div>
+                                <select id="platter{{ platter.id }}sizeSelect">
+                                    {% if platter.selectable_size == "Small and large" %}
+                                        <option value="Small">
+                                            Small
+                                        </option>
+                                        <option value="Large">
+                                            Large
+                                        </option>
+                                    {% else %}
+                                        <option value={{ platter.selectable_size }}>
+                                            {{ platter.selectable_size }}
+                                        </option>
+                                    {% endif %}
+                                </select>
+                            </span>
+                        </td>
+
+                        <td>
+                            <div id="platter{{ platter.id }}added" style="display:none; padding: 0.6rem; font-style:italic; color:rgb(0,179,0)">
+                                Added
+                            </div>
+                            <span id="platter{{ platter.id }}quantity" style="padding: 0.6rem; display:none; text-align:center">
+                                <div style="color:DimGrey; font-size:90%; font-style:italic">
+                                    Number
+                                </div>
+                                <select id="platter{{ platter.id }}quantitySelect">
+                                    {% for i in "12345678" %}
+                                        <option value={{ forloop.counter }}>
+                                            {{ forloop.counter }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </span>
+                        </td>
+
+                        <td style="vertical-align: middle; padding: 0.6rem">
+                            <span id="platter{{ platter.id }}price">
+                            </span>
+                        </td>
+
+                        <td>
+                            <span id="platter{{ platter.id }}buttons" style="display:none; padding: 0.6rem;">
+                                <div style="padding-bottom: 0.3rem">
+                                    <button id="platter{{ platter.id }}add" class="btn btn-success btn-sm" style="width: 4.6rem">
+                                    Add
+                                    </button>
+                                </div>
+                                <div style="padding-top: 0.3rem">
+                                    <button id="platter{{ platter.id }}cancel" class="btn btn-danger btn-sm" style="width: 4.6rem">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </span>
+                        </td>
+
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </table>
+    {% endif %}
+
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "orders/base.html" %}
+
+{% block title %}
+    Registration page
+{% endblock %}
+
+{% block heading %}
+    Sign up
+{% endblock %}
+
+{% block buttons %}
+    <a href="{% url 'login' %}">
+        <button>
+            Back to login
+        </button>
+    </a>
+{% endblock %}
+
+{% block body %}
+    <form action="{% url 'signup' %}" method="post">
+        {% csrf_token %}
+        First name:
+        <br>
+        <input name="first_name" type="text" Placeholder="first name" maxlength="60" value={% if first_name %}{{ first_name }}{% endif %}>
+        <br>
+        <br>
+        Last name:
+        <br>
+        <input name="last_name" type="text" Placeholder="last name" maxlength="60" value={% if last_name %}{{ last_name }}{% endif %}>
+        <br>
+        <br>
+        Email address:
+        <br>
+        <input name="email" type="text" Placeholder="email address" maxlength="60" value={% if email %}{{ email }}{% endif %}>
+        <br>
+        <br>
+        Username:
+        <br>
+        <input name="username" type="text" Placeholder="username" maxlength="30" value={% if username %}{{ username }}{% endif %}>
+        <br>
+        <br>
+        Password:
+        <br>
+        <input name="password" type="password" Placeholder="password" maxlength="30" value={% if password %}{{ password }}{% endif %}>
+        <br>
+        <br>
+        <input type="submit" value="register">
+    </form>
+{% endblock %}

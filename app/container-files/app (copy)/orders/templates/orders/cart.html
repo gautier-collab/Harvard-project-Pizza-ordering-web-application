@@ -1,0 +1,357 @@
+{% extends "orders/base.html" %}
+
+{% load static %}
+{% load mathfilters %}
+
+{% block page %}cart{% endblock %}
+
+{% block title %}
+    Cart
+{% endblock %}
+
+{% block username %}
+    Currently logged in as <span style="color:blue">{{ user.username }}</span>.
+{% endblock %}
+
+{% block heading %}
+    Cart
+{% endblock %}
+
+{% block buttons %}
+
+    {% if user.is_superuser == True %}
+        <a href="{% url 'orders' %}">
+            <button style="width:8.4rem; height: 2.2rem">
+                Orders&nbsp;&nbsp;
+                <i class="fas fa-clipboard-list"></i>
+            </button>
+        </a>
+        <br>
+        <br>
+    {% endif %}
+
+    <a href="{% url 'index' %}">
+        <button style="width:8.4rem; height: 2.2rem">
+            Menu&nbsp;&nbsp;
+            <i class="fas fa-pizza-slice"></i>
+        </button>
+    </a>
+    <br>
+    <br>
+    <a href="{% url 'logout' %}">
+        <button style="width:8.4rem; height: 2.2rem">
+            Logout&nbsp;&nbsp;
+            <i class="fas fa-sign-out-alt"></i>
+        </button>
+    </a>
+
+{% endblock %}
+
+{% block body %}
+
+    {% if profile.pizzas.all or profile.subs.all or profile.pasta.all or profile.salads.all or profile.dinner_platters.all %}
+    
+        <table style="margin-left:auto; margin-right:auto" id="cartList">
+
+            {% if profile.pizzas.all %}
+                <tr>
+                    <td colspan="5">
+                        <ul style="padding-left: 5.5rem; padding-top: 1rem">
+                            <li>
+                                <b>
+                                    {{ profile.pizzas.all|length }}
+                                    {% if profile.pizzas.all|length == 1 %}
+                                        pizza
+                                    {% else %}
+                                        pizzas
+                                    {% endif %}
+                                </b>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+                {% for pizza in profile.pizzas.all %}
+                    <tr>
+                        <td>
+                            <img src="{% static 'orders/pizza.png' %}" height="100%">
+                        </td>
+                        <td>
+                            {{ pizza.pizza.crust }} pizza : {{ pizza.pizza.name }}
+                            {% if pizza.topping_1.name != "None" or pizza.topping_2.name != "None" or pizza.topping_3.name != "None" or pizza.topping_4.name != "None" %}
+                                ({% if pizza.topping_1.name != "None" %}{{ pizza.topping_1.name }}{% endif %}{% if pizza.topping_2.name != "None" %}, {{ pizza.topping_2.name }}{% endif %}{% if pizza.topping_3.name != "None" %}, {{ pizza.topping_3.name }}{% endif %}{% if pizza.topping_4.name != "None" %}, {{ pizza.topping_4.name }}{% endif %})
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ pizza.size }}
+                        </td>
+                        <td style="padding-left: 5rem">
+                            ${% if pizza.size == "Small" %}
+                                {{ pizza.pizza.small_price|stringformat:'.2f' }}
+                            {% else %}
+                                {{ pizza.pizza.large_price|stringformat:'.2f' }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form action="{% url 'remove' %}" method="post">
+                                {% csrf_token %}
+                                <input name="type" type="hidden" value="pizza">
+                                <button type="submit" name="ID" class="btn btn-danger btn-sm" value={{ pizza.id }}>
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                <tr style="border-bottom: 0.1rem solid black">
+                    <td style="height:1.2rem">
+                    </td>
+                </tr>
+            {% endif %}
+
+            {% if profile.subs.all %}
+                <tr>
+                    <td colspan="5">
+                        <ul style="padding-left: 5.5rem; padding-top: 1rem">
+                            <li>
+                                <b>
+                                    {{ profile.subs.all|length }}
+                                    {% if profile.subs.all|length == 1 %}
+                                        sub
+                                    {% else %}
+                                        subs
+                                    {% endif %}
+                                </b>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+                {% for sub in profile.subs.all %}
+                    <tr>
+                        <td>
+                            <img src="{% static 'orders/sub.png' %}" height="100%">
+                        </td>
+                        <td>
+                            {{ sub.sub.name }}
+                            {% if sub.extra_1.name != "None" %} + {{ sub.extra_1.name }}{% endif %}{% if sub.extra_2.name != "None" %} + {{ sub.extra_2.name }}{% endif %}{% if sub.extra_3.name != "None" %} + {{ sub.extra_3.name }}{% endif %}{% if sub.extra_4.name != "None" %} + {{ sub.extra_4.name }}{% endif %}
+                        </td>
+                        <td>
+                            {{ sub.size }}
+                        </td>
+                        <td style="padding-left: 5rem">
+                            ${% if sub.size == "Small" %}
+                                {% with price=sub.extra_1.price|addition:sub.extra_2.price|addition:sub.extra_3.price|addition:sub.extra_4.price|addition:sub.sub.small_price %}
+                                    {{ price|stringformat:'.2f' }}
+                                {% endwith %}
+                            {% else %}
+                                {% with price=sub.extra_1.price|addition:sub.extra_2.price|addition:sub.extra_3.price|addition:sub.extra_4.price|addition:sub.sub.large_price %}
+                                    {{ price|stringformat:'.2f' }}
+                                {% endwith %}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form action="{% url 'remove' %}" method="post">
+                                {% csrf_token %}
+                                <input name="type" type="hidden" value="sub">
+                                <button type="submit" name="ID" class="btn btn-danger btn-sm" value={{ sub.id }}>
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                <tr style="border-bottom: 0.1rem solid black">
+                    <td style="height:1.2rem">
+                    </td>
+                </tr>
+            {% endif %}
+
+            {% if profile.pasta.all %}
+                <tr>
+                    <td colspan="5">
+                        <ul style="padding-left: 5.5rem; padding-top: 1rem">
+                            <li>
+                                <b>
+                                    {{ profile.pasta.all|length }} pasta
+                                </b>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+                {% for pasta in profile.pasta.all %}
+                    <tr>
+                        <td>
+                            <img src="{% static 'orders/pasta.png' %}" height="100%">
+                        </td>
+                        <td>
+                            {{ pasta.pasta.name }}
+                        </td>
+                        <td>
+                        </td>
+                        <td style="padding-left: 5rem">
+                            $ {{ pasta.pasta.price|stringformat:'.2f' }}
+                        </td>
+                        <td>
+                            <form action="{% url 'remove' %}" method="post">
+                                {% csrf_token %}
+                                <input name="type" type="hidden" value="pasta">
+                                <button type="submit" name="ID" class="btn btn-danger btn-sm" value={{ pasta.id }}>
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                <tr style="border-bottom: 0.1rem solid black">
+                    <td style="height:1.2rem">
+                    </td>
+                </tr>
+            {% endif %}
+
+            {% if profile.salads.all %}
+                <tr>
+                    <td colspan="5">
+                        <ul style="padding-left: 5.5rem; padding-top: 1rem">
+                            <li>
+                                <b>
+                                    {{ profile.salads.all|length }}
+                                    {% if profile.salads.all|length == 1 %}
+                                        salad
+                                    {% else %}
+                                        salads
+                                    {% endif %}
+                                </b>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+                {% for salad in profile.salads.all %}
+                    <tr>
+                        <td>
+                            <img src="{% static 'orders/salad.png' %}" height="100%">
+                        </td>
+                        <td>
+                            {{ salad.salad.name }}
+                        </td>
+                        <td>
+                        </td>
+                        <td style="padding-left: 5rem">
+                            $ {{ salad.salad.price|stringformat:'.2f' }}
+                        </td>
+                        <td>
+                            <form action="{% url 'remove' %}" method="post">
+                                {% csrf_token %}
+                                <input name="type" type="hidden" value="salad">
+                                <button type="submit" name="ID" class="btn btn-danger btn-sm" value={{ salad.id }}>
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                <tr style="border-bottom: 0.1rem solid black">
+                    <td style="height:1.2rem">
+                    </td>
+                </tr>
+            {% endif %}
+
+            {% if profile.dinner_platters.all %}
+                <tr>
+                    <td colspan="5">
+                        <ul style="padding-left: 5.5rem; padding-top: 1rem">
+                            <li>
+                                <b>
+                                    {{ profile.dinner_platters.all|length }}
+                                    {% if profile.dinner_platters.all|length == 1 %}
+                                        dinner platter
+                                    {% else %}
+                                        dinner platters
+                                    {% endif %}
+                                </b>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+                {% for dinner_platter in profile.dinner_platters.all %}
+                    <tr>
+                        <td>
+                            <img src="{% static 'orders/dinner_platter.png' %}" height="100%">
+                        </td>
+                        <td>
+                            {{ dinner_platter.dinner_platter.name }} platter
+                        </td>
+                        <td>
+                            {{ dinner_platter.size }}
+                        </td>
+                        <td style="padding-left: 5rem">
+                            ${% if dinner_platter.size == "Small" %}
+                                {{ dinner_platter.dinner_platter.small_price|stringformat:'.2f' }}
+                            {% else %}
+                                {{ dinner_platter.dinner_platter.large_price|stringformat:'.2f' }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form action="{% url 'remove' %}" method="post">
+                                {% csrf_token %}
+                                <input name="type" type="hidden" value="dinner_platter">
+                                <button type="submit" name="ID" class="btn btn-danger btn-sm" value={{ dinner_platter.id }}>
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                <tr style="border-bottom: 0.1rem solid black">
+                    <td style="height:1.2rem">
+                    </td>
+                </tr>
+            {% endif %}
+
+            <tr>
+                <td>
+                </td>
+                <td style="padding-top: 1rem">
+                    <b>
+                        Total
+                    </b>
+                </td>
+                <td>
+                </td>
+                <td style="padding-left: 5rem; width:11rem">
+                    <b>
+                        $ {{ profile.total|stringformat:'.2f' }}
+                    </b>
+                </td>
+                <td>
+                </td>
+            </tr>
+        </table>
+
+        <br>
+        <br>
+        <div style="text-align:center">
+            <form action="{% url 'checkout1' %}" method="post">
+                {% csrf_token %}
+                <input name="total" type="hidden" value={{ profile.total }}>
+                <input name="cart_version" type="hidden" value={{ cart_version }}>
+                <button type="submit" class="pizza btn btn-primary btn-sm" style="margin-left:auto; margin-right:auto">
+                    <b>
+                        Checkout
+                    </b>
+                </button>
+            </form>
+        </div>
+    
+    {% else %}
+
+    <p style="text-align:center">
+        <b>
+            Your cart is empty.
+        </b>
+        <br>
+        <br>
+        Feel free to order tons of food, otherwise we may end up going bankrupt because of this damned Covid-19 pandemic.
+    </p>
+
+    {% endif %}
+
+{% endblock %}
