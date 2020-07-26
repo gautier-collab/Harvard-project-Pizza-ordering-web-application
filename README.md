@@ -1,4 +1,4 @@
-# __repository_title__
+# -------- Harvard-project-Pizza-ordering-web-application --------
 
 Web Programming with Python and JavaScript
 
