@@ -19,13 +19,13 @@
 {% block buttons %}
 
     {% if user.is_superuser == True %}
-        <a href="{% url 'orders' %}">
-            <button style="width:8.4rem; height: 2.2rem">
+        <form action="/orders" method="post" id="form">
+            {% csrf_token %}
+            <button style="width:8.4rem; height: 2.2rem" type="submit" form="form">
                 Orders&nbsp;&nbsp;
                 <i class="fas fa-clipboard-list"></i>
             </button>
-        </a>
-        <br>
+        </form>
         <br>
     {% endif %}
 
@@ -70,10 +70,14 @@
                         <td>
                         </td>
                         <td style="text-align: center; padding: 0.6rem; border-left: 0.1rem solid black">
-                            Small
+                            <b style="font-size: 0.83rem">
+                                Small
+                            </b>
                         </td>
                         <td style="text-align: center; padding: 0.6rem; border-left: 0.1rem solid black; border-right: 0.1rem solid black">
-                            Large
+                            <b style="font-size: 0.83rem">
+                                Large
+                            </b>
                         </td>
                     </tr>
                     {% for pizza in pizzas %}
@@ -264,10 +268,14 @@
                 <td>
                 </td>
                 <td style="text-align: center; padding: 0.6rem; border-left: 0.1rem solid black">
-                    Small
+                    <b style="font-size: 0.83rem">
+                        Small
+                    </b>
                 </td>
                 <td style="text-align: center; padding: 0.6rem; border-left: 0.1rem solid black; border-right: 0.1rem solid black">
-                    Large
+                    <b style="font-size: 0.83rem">
+                        Large
+                    </b>
                 </td>
             </tr>
             {% for sub in subs %}
@@ -672,10 +680,14 @@
                 <td>
                 </td>
                 <td style="text-align: center; padding: 0.6rem; border-left: 0.1rem solid black">
-                    Small
+                    <b style="font-size: 0.83rem">
+                        Small
+                    </b>
                 </td>
                 <td style="text-align: center; padding: 0.6rem; border-left: 0.1rem solid black; border-right: 0.1rem solid black">
-                    Large
+                    <b style="font-size: 0.83rem">
+                        Large
+                    </b>
                 </td>
             </tr>
             {% for platter in platters %}

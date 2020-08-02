@@ -230,8 +230,9 @@ def remove_pizza(sender, **kwargs):
     for p in Cart_pizza.objects.all():
         if p.pizza.id == kwargs['instance'].id:
             p.profile.msg = True
+            p.profile.save()
+            print(f"\n{p.pizza.id} pizza is deleted and the message is ongoing.\n")
             p.delete()
-            print(f"\n{p.id} pizza is deleted and the message is ongoing.\n")
             break
         else:
             continue
@@ -239,8 +240,6 @@ def remove_pizza(sender, **kwargs):
 # Everytime an item is removed from the menu, it is also removed from the cart. Same when it is simply modified (for cart items that may have a size, topping or extra that is not supposed to be selectable anymore)
 post_save.connect(remove_pizza, sender=Pizza)
 pre_delete.connect(remove_pizza, sender=Pizza)
-
-
 
 
 
@@ -258,10 +257,11 @@ class Cart_sub(models.Model):
 
 def remove_sub(sender, **kwargs):
     for s in Cart_sub.objects.all():
-        if s.name == kwargs['instance'].name:
+        if s.sub.name == kwargs['instance'].name:
             s.profile.msg = True
+            s.profile.save()
+            print(f"\nThe message is ongoing and {s.sub.name} sub is deleted\n")
             s.delete()
-            print(f"\nThe message is ongoing and {s.id} sub is deleted\n")
             break
         else:
             continue
@@ -281,10 +281,11 @@ class Cart_pasta(models.Model):
 
 def remove_pasta(sender, **kwargs):
     for p in Cart_pasta.objects.all():
-        if p.name == kwargs['instance'].name:
+        if p.pasta.name == kwargs['instance'].name:
             p.profile.msg = True
+            p.profile.save()
+            print(f"The message is ongoing and {p.pasta.name} is deleted")
             p.delete()
-            print(f"The message is ongoing and {p.name} is deleted")
             break
         else:
             continue
@@ -304,10 +305,11 @@ class Cart_salad(models.Model):
 
 def remove_salad(sender, **kwargs):
     for s in Cart_salad.objects.all():
-        if s.name == kwargs['instance'].name:
+        if s.salad.name == kwargs['instance'].name:
             s.profile.msg = True
+            s.profile.save()
+            print(f"\nThe message is ongoing and {s.salad.name} is deleted\n")
             s.delete()
-            print(f"\nThe message is ongoing and {s.name} is deleted\n")
             break
         else:
             continue
@@ -328,10 +330,11 @@ class Cart_dinner_platter(models.Model):
 
 def remove_dinner_platter(sender, **kwargs):
     for d in Cart_dinner_platter.objects.all():
-        if d.name == kwargs['instance'].name:
+        if d.dinner_platter.name == kwargs['instance'].name:
             d.profile.msg = True
+            d.profile.save()
+            print(f"\nThe message is ongoing and {d.dinner_platter.name} is deleted\n")
             d.delete()
-            print(f"\nThe message is ongoing and {d.name} is deleted\n")
             break
         else:
             continue

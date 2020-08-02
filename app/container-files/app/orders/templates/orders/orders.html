@@ -69,7 +69,7 @@
             </tr>
 
             {% for order in orders %}
-                <tr>
+                <tr style="border-top: 0.1rem solid black">
                     <td style="vertical-align:top; padding:0.9rem">
                         {{ order.date }}
                     </td>
@@ -85,7 +85,7 @@
                             &bull;&nbsp;&nbsp;{{ pizza.size }} {{ pizza.crust }} {{ pizza.name }} pizza
                             {% if pizza.topping_1 != "None" or pizza.topping_2 != "None" or pizza.topping_3 != "None" or pizza.topping_4 != "None" %}
                                 <br>
-                                &nbsp;&nbsp;&nbsp;&nbsp;( 
+                                ( 
                                 {% if pizza.topping_1 != "None" %}
                                     {{ pizza.topping_1 }}
                                     {% if pizza.topping_2 != "None" or pizza.topping_3 != "None" or pizza.topping_4 != "None" %}
@@ -110,13 +110,14 @@
                                 )
                             {% endif %}
                             <br>
+                            <br>
                         {% endfor %}
 
                         {% for sub in order.items.subs %}
                             &bull;&nbsp;&nbsp;{{ sub.size }} {{ sub.name }} sub
                                 {% if sub.extra_1 != "None" or sub.extra_2 != "None" or sub.extra_3 != "None" or sub.extra_4 != "None" %}
                                     <br>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;( with 
+                                    ( with 
                                     {% if sub.extra_1 != "None" %}
                                         {{ sub.extra_1 }}
                                         {% if sub.extra_2 != "None" or sub.extra_3 != "None" or sub.extra_4 != "None" %}
@@ -141,20 +142,24 @@
                                     )
                             {% endif %}
                             <br>
+                            <br>
                         {% endfor %}
 
                         {% for pasta in order.items.pasta %}
                             &bull;&nbsp;&nbsp;{{ pasta.name }}
+                            <br>
                             <br>
                         {% endfor %}
 
                         {% for salad in order.items.salads %}
                             &bull;&nbsp;&nbsp;{{ salad.name }}
                             <br>
+                            <br>
                         {% endfor %}
 
                         {% for platter in order.items.dinner_platters %}
                             &bull;&nbsp;&nbsp;{{ platter.size }} {{ platter.name }} dinner platter
+                            <br>
                             <br>
                         {% endfor %}
                     </td>

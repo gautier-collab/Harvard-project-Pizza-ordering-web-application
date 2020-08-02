@@ -20,13 +20,13 @@
 {% block buttons %}
 
     {% if user.is_superuser == True %}
-        <a href="{% url 'orders' %}">
-            <button style="width:8.4rem; height: 2.2rem">
+        <form action="/orders" method="post" id="form">
+            {% csrf_token %}
+            <button style="width:8.4rem; height: 2.2rem" type="submit" form="form">
                 Orders&nbsp;&nbsp;
                 <i class="fas fa-clipboard-list"></i>
             </button>
-        </a>
-        <br>
+        </form>
         <br>
     {% endif %}
 

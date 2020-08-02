@@ -1,12 +1,14 @@
 import re, datetime, json, stripe
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import View
 from django.conf import settings
 from .models import Profile, Crust, Topping, OrderTopping, Extra, OrderExtra, Pizza, Sub, Pasta, Salad, Dinner_platter, Cart_pizza, Cart_sub, Cart_pasta, Cart_salad, Cart_dinner_platter, Order
+
+
 
 def login_view(request):
     if request.method == "POST":
@@ -46,7 +48,6 @@ def signup(request):
             return render(request, "orders/signup.html", {"error": "Invalid email address", "first_name":first_name, "last_name":last_name, "email":email, "username":username, "password":password})
         if User.objects.filter(username=username).exists():
             return render(request, "orders/signup.html", {"error": "This username already exists. Please choose another one.", "first_name":first_name, "last_name":last_name, "email":email, "username":username, "password":password})
-        # The email address is valid
 
         if len(username) < 3: 
             return render(request, "orders/signup.html", {"error": "Your username must be at least three characters long.", "first_name":first_name, "last_name":last_name, "email":email, "username":username, "password":password})
@@ -69,11 +70,11 @@ def logout_view(request):
 
 
 def index(request):
-    return menu(request, "")
+    return menu(request, "", "")
 
 
 
-def menu(request, msg):
+def menu(request, success, error):
     if not request.user.is_authenticated:
         return render(request, "orders/login.html", {"success": None})
 
@@ -96,7 +97,8 @@ def menu(request, msg):
         "pastas": Pasta.objects.all(),
         "salads": Salad.objects.all(),
         "platters": Dinner_platter.objects.all(),
-        "success": msg
+        "success": success,
+        "error": error
     }
     return render(request, "orders/index.html", context)
 
@@ -123,9 +125,16 @@ def cart(request):
     profile.checkout_items = json.dumps(items) # JSON ---> string because Django has no field for dict
     profile.save()
 
+    error = None
+    if profile.msg == True:
+        error = "Elements of your cart have been removed because they were modified in the menu of the restaurant."
+        profile.msg = False
+        profile.save()
+
     context = {
         "profile": profile,
         "cart_version" : profile.cart_version,
+        "error" : error
         }
     return render(request, "orders/cart.html", context)
 
@@ -227,7 +236,7 @@ def place(request):
             for dinner_platter in items["dinner_platters"]:
                 Cart_dinner_platter.objects.all().get(id=dinner_platter["id"]).delete()
 
-            return menu(request, msg = "Your payment has been made and your order is placed. Thank you !")
+            return menu(request, success = "Your payment has been made and your order is placed. Thank you !", error = "")
 
         except stripe.error.CardError as e:
             # Since it's a decline, stripe.error.CardError will be caught
@@ -267,16 +276,21 @@ def place(request):
 
 def orders(request):
 
-    orders = []
-    for order in Order.objects.all():
-        date = datetime.datetime.fromtimestamp(order.timestamp).strftime('%B %d, %Y at %H:%M')
-        items = json.loads(order.items) # string ---> JSON object
-        orders.append({"order": order, "date": date, "items": items})
+    if request.method == "POST":
 
-    context = {
-        "orders": orders
-    };
-    return render(request, "orders/orders.html", context)
+        orders = []
+        for order in Order.objects.all():
+            date = datetime.datetime.fromtimestamp(order.timestamp).strftime('%B %d, %Y at %H:%M')
+            items = json.loads(order.items) # string ---> JSON object
+            orders.append({"order": order, "date": date, "items": items})
+
+        context = {
+            "orders": orders
+        };
+        return render(request, "orders/orders.html", context)
+
+    else:
+        return menu(request, success = "", error = "Accessing this page requires clicking the 'Orders' button with a superuser account.")
 
 
 
