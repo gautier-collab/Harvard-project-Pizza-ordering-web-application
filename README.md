@@ -1,8 +1,8 @@
-# ---- Harvard-project-Pizza-ordering-web-application ----
+# Harvard-project-Pizza-ordering-web-application
 
 Web Programming with Python and JavaScript
 
-This is a web application for handling a pizza restaurant’s online orders. Users can browse the restaurant’s menu, add items to their cart, and submit their orders. Meanwhile, the restaurant owners are able to add and update menu items, and view orders that have been placed.
+This is a web application for handling a pizza restaurant’s online orders, built as my Project 3 of the 2018 version of the Harvard course CS50's Web Programming with Python and JavaScript. Users can browse the restaurant’s menu, add items to their cart, and submit their orders. Meanwhile, the restaurant owners are able to add and update menu items, and view orders that have been placed.
 
 Here are the credentials of the superuser account created for restaurant owners:
 
