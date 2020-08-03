@@ -1,4 +1,4 @@
-# -------- Harvard-project-Pizza-ordering-web-application --------
+# ---- Harvard-project-Pizza-ordering-web-application ----
 
 Web Programming with Python and JavaScript
 
