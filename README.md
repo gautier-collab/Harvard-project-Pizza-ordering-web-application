@@ -2,11 +2,13 @@
 
 Web Programming with Python and JavaScript
 
+This is a web application for handling a pizza restaurant’s online orders. Users can browse the restaurant’s menu, add items to their cart, and submit their orders. Meanwhile, the restaurant owners are able to add and update menu items, and view orders that have been placed.
+
 Here are the credentials of the superuser account created for restaurant owners:
 
-Username: pizzastaff
+- Username: pizzastaff
 
-Password: ilovepizza
+- Password: ilovepizza
 
 To make the website go live, enter your Stripe live keys at the beginning of pizza/settings.py and switch STRIPE_TEST_MODE to False.
 
